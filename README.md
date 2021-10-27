@@ -13,10 +13,10 @@ git clone https://github.com/Marcelo-Diament/express-e-sequelize-base
 ### 1.2. Instalar dependências
 
 ```sh
-cd server && npm run start
+cd server && npm install && npm run start
 ```
 
-### 1.3. Acessar `localhost:8000` e navegar para garantir que está tudo funcionando corretamente.
+### 1.3. Acessar `localhost:3000` e navegar para garantir que está tudo funcionando corretamente.
 
 ## 2. Base Banco (MySQL)
 
@@ -254,5 +254,24 @@ const path = require('path')
 
 module.exports = {
     'config': path.resolve('config', 'database.js')
+}
+```
+
+## 5. Models
+
+### 5.1. Init Models
+
+Basta rodar o comando `npx sequelize init:models` no terminal (dentro da pasta `server` ).
+
+Perceba que uma pasta `models` foi criada e, dentro dela, o arquivo `index.js` - precisamos atualizar o caminho das configurações para `const config = require('../config/database.js')` .
+
+Agora precisamos incluir o caminho até essa pasta `models` no nosso arquivo `.sequelizerc` . Ele ficará assim:
+
+```js
+const path = require('path')
+
+module.exports = {
+    'config': path.resolve('config', 'database.js'),
+    'models': path.resolve('models')
 }
 ```
