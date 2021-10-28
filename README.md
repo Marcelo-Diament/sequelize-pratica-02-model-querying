@@ -397,3 +397,56 @@ show: async (req, res, next) => {
     }
 }
 ```
+
+Simples assim!
+
+### 6.2 Listar todos usuários ( `findAll` )
+
+Para listarmos todos os registros, podemos usar o método `findAll()` .
+
+O método `index` ficará assim:
+
+```js
+index: async (req, res, next) => {
+    const usuarios = await User.findAll()
+    res.render('users', {
+        titulo: 'Usuários',
+        subtitulo: 'Listagem de Usuários',
+        usuarios,
+        usuarioLogado: req.cookies.usuario,
+        usuarioAdmin: req.cookies.admin,
+        bannerTopo: '/images/banner-topo-usuarios-1564x472.png',
+        bannerMeio: '/images/banner-meio-usuarios-1920x1080.png'
+    });
+}
+```
+
+E o método `list` , assim:
+
+```js
+list: async (req, res, next) => {
+    const usuarios = await User.findAll()
+    let admin = req.cookies.admin
+    if (!admin || admin === 'false') {
+        res.render('users', {
+            titulo: 'Ops!',
+            subtitulo: 'Você não pode gerenciar usuários, apenas visualizá-los.',
+            usuarios: usuarios,
+            usuarioLogado: req.cookies.usuario,
+            usuarioAdmin: admin,
+            bannerTopo: '/images/banner-topo-usuarios-1564x472.png',
+            bannerMeio: '/images/banner-meio-usuarios-1920x1080.png'
+        });
+    } else {
+        res.render('usersList', {
+            titulo: 'Usuários',
+            subtitulo: 'Listagem de Usuários',
+            usuarios: usuarios,
+            usuarioLogado: req.cookies.usuario,
+            usuarioAdmin: admin
+        });
+    }
+}
+```
+
+ Mais fácil ainda né!

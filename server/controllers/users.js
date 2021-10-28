@@ -3,11 +3,12 @@ const { User } = require('../models')
 const usuariosPlaceholder = require('../data/usuariosPlaceholder.json')
 
 const controller = {
-  index: (req, res, next) => {
+  index: async (req, res, next) => {
+    const usuarios = await User.findAll()
     res.render('users', {
       titulo: 'Usuários',
       subtitulo: 'Listagem de Usuários',
-      usuarios: usuariosPlaceholder,
+      usuarios,
       usuarioLogado: req.cookies.usuario,
       usuarioAdmin: req.cookies.admin,
       bannerTopo: '/images/banner-topo-usuarios-1564x472.png',
@@ -31,13 +32,14 @@ const controller = {
       res.status(500).send(`Ops, houve algum erro ao buscar pelo usuário de id ${id}`)
     }
   },
-  list: (req, res, next) => {
+  list: async (req, res, next) => {
+    const usuarios = await User.findAll()
     let admin = req.cookies.admin
     if (!admin || admin === 'false') {
       res.render('users', {
         titulo: 'Ops!',
         subtitulo: 'Você não pode gerenciar usuários, apenas visualizá-los.',
-        usuarios: usuariosPlaceholder,
+        usuarios,
         usuarioLogado: req.cookies.usuario,
         usuarioAdmin: admin,
         bannerTopo: '/images/banner-topo-usuarios-1564x472.png',
@@ -47,7 +49,7 @@ const controller = {
       res.render('usersList', {
         titulo: 'Usuários',
         subtitulo: 'Listagem de Usuários',
-        usuarios: usuariosPlaceholder,
+        usuarios,
         usuarioLogado: req.cookies.usuario,
         usuarioAdmin: admin
       });
