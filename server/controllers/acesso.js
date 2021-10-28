@@ -70,54 +70,53 @@ const controller = {
       usuarioAdmin: req.cookies.admin
     });
   },
-  update: (req, res, next) => {
-    const idBuscado = req.params.id.replace('/', '')
-    const usuariosOld = fs.readFileSync(path.join(__dirname, '..', 'data', 'usuariosPlaceholder.json'), 'utf-8')
-    let usuarios = JSON.parse(usuariosOld)
-    let usuario = usuarios.filter(usuario => usuario.id == idBuscado)[0]
-    res.render('userUpdate', {
-      titulo: 'Cadastro',
-      subtitulo: req.cookies.usuario ? `Verifique os dados e atualize os que precisar` : 'Preencha os dados e complete seu cadastro!',
-      usuarioLogado: req.cookies.usuario,
-      usuarioAdmin: req.cookies.admin,
-      usuarioEditando: usuario
-    })
+  update: async (req, res, next) => {
+    const { id } = req.params
+    const usuario = await User.findOne({ where: { id } })
+    if (usuario) {
+      res.render('userUpdate', {
+        titulo: 'Cadastro',
+        subtitulo: req.cookies.usuario ? `Verifique os dados e atualize os que precisar` : 'Preencha os dados e complete seu cadastro!',
+        usuarioLogado: req.cookies.usuario,
+        usuarioAdmin: req.cookies.admin,
+        usuarioEditando: usuario
+      })
+    } else {
+      res.status(500).send(`Ops... houve algum erro ao buscar pelo usuário de id ${id}`)
+    }
   },
-  edit: (req, res, next) => {
-    const idBuscado = req.params.id.replace('/', '')
-    const usuariosOld = fs.readFileSync(path.join(__dirname, '..', 'data', 'usuariosPlaceholder.json'), 'utf-8')
-    let usuarios = JSON.parse(usuariosOld)
-    let usuario = usuarios.filter(usuario => usuario.id == idBuscado)[0]
-
-    let usuarioAtualizado = req.body
-    for (let prop in usuarioAtualizado) {
-      if (usuarioAtualizado[prop] !== "") {
-        usuario[prop] = usuarioAtualizado[prop]
-      }
+  edit: async (req, res, next) => {
+    const id = req.params.id.replace('/', '')
+    let {
+      nome,
+      sobrenome,
+      apelido,
+      nascimento,
+      senha,
+      corPreferida,
+      email,
+      telefone,
+      bio
+    } = req.body
+    if (telefone) telefone = telefone.replace(/\D/g, '')
+    modificadoEm = new Date()
+    const user = await User.update({
+      nome,
+      sobrenome,
+      apelido,
+      nascimento,
+      senha,
+      corPreferida,
+      email,
+      telefone,
+      bio,
+      modificadoEm
+    }, { where: { id } })
+    if (user) {
+      res.redirect('../../usuarios')
+    } else {
+      res.status(500).send('Ops... Algo de errado não deu certo!')
     }
-    usuario.modificadoEm = new Date()
-
-    usuarios.forEach(usuarioFinal => {
-      if (usuarioFinal.id == usuario.id) {
-        usuarioFinal = usuario
-        usuarioFinal.id = parseInt(usuario.id)
-      }
-    })
-
-    fs.writeFileSync(path.join(__dirname, '..', 'data', 'usuariosPlaceholder.json'), JSON.stringify(usuarios))
-
-    if (req.cookies.usuario.id === usuario.id) {
-      res.clearCookie('usuario').cookie('usuario', usuario)
-    }
-    res.render('user', {
-      titulo: 'Usuário',
-      subtitulo: `Usuário #${idBuscado}`,
-      usuario,
-      usuarioLogado: req.cookies.usuario,
-      usuarioAdmin: req.cookies.admin,
-      bannerTopo: '/images/banner-topo-usuario-1564x472.png',
-      bannerMeio: '/images/banner-meio-usuario-1920x1080.png'
-    })
   },
   delete: async (req, res, next) => {
     const idBuscado = req.params.id.replace('/', '')
