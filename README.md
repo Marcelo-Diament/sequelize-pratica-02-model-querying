@@ -355,3 +355,45 @@ module.exports = (sequelize, DataType) => {
     return User
 }
 ```
+
+## 6. Model Querying
+
+Agora podemos começar nossas consultas ao BD!
+
+### 6.1. Listar um usuário ( `findOne` )
+
+No controller de usuários, vamos importar nosso `model` :
+
+```js
+const {
+    Usuario
+} = require('../models')
+```
+
+E no método `show` vamos aplicar nossa `query` : 
+
+```js
+show: async (req, res, next) => {
+    const {
+        id
+    } = req.params
+    const usuario = await User.findOne({
+        where: {
+            id
+        }
+    })
+    if (usuario) {
+        res.render('user', {
+            titulo: 'Usuário',
+            subtitulo: `Usuário #${id}`,
+            usuario,
+            usuarioLogado: req.cookies.usuario,
+            usuarioAdmin: req.cookies.admin,
+            bannerTopo: '/images/banner-topo-usuario-1564x472.png',
+            bannerMeio: '/images/banner-meio-usuario-1920x1080.png'
+        })
+    } else {
+        res.status(500).send(`Ops, houve algum erro ao buscar pelo usuário de id ${id}`)
+    }
+}
+```
