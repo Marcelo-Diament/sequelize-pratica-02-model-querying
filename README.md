@@ -450,3 +450,32 @@ list: async (req, res, next) => {
 ```
 
  Mais fácil ainda né!
+ 
+
+### 6.3. Apagar um usuário ( `destroy` )
+
+Para excluirmos um registro, contamos com o método `destroy` . No arquivo `controllers/acesso.js` vamos importar nosso model:
+
+```js
+const {
+    User
+} = require('../models')
+```
+
+E o método `delete` deverá ficar assim:
+
+```js
+delete: async (req, res, next) => {
+    const id = req.params.id.replace('/', '')
+    const user = await User.destroy({
+        where: {
+            id
+        }
+    })
+    if (user) {
+        res.redirect('../../')
+    } else {
+        res.status(500).send('Ops... Algo de errado não deu certo!')
+    }
+}
+```
