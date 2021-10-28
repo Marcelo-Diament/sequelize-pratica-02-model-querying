@@ -479,3 +479,137 @@ delete: async (req, res, next) => {
     }
 }
 ```
+
+### 6.4. Adicionar um usuário ( `create` )
+
+Agora vamos utilizar o método `create` para adicionarmos um usuário.
+
+No controller `acesso.js` vamos atualizar o método `add` :
+
+```js
+add: async (req, res, next) => {
+    let {
+        nome,
+        sobrenome,
+        apelido,
+        nascimento,
+        senha,
+        corPreferida,
+        avatar,
+        email,
+        telefone,
+        bio
+    } = req.body
+    telefone = telefone.replace(/\D/g, '')
+    const plano_id = 1
+    const papel_id = email.indexOf('@diament.com.br') > 0 ? 1 : 2
+    const criadoEm = new Date()
+    const modificadoEm = new Date()
+    const user = await User.create({
+        nome,
+        sobrenome,
+        apelido,
+        nascimento,
+        senha,
+        corPreferida,
+        avatar,
+        email,
+        telefone,
+        bio,
+        plano_id,
+        papel_id,
+        criadoEm,
+        modificadoEm
+    })
+    if (user) {
+        res.redirect('../../usuarios')
+    } else {
+        res.status(500).send('Ops... Algo de errado não deu certo!')
+    }
+}
+```
+
+### 6.5. Editar um usuário ( `update` )
+
+Primeiro vamos 'carregar' o usuário no método `update` :
+
+```js
+update: async (req, res, next) => {
+    const {
+        id
+    } = req.params
+    const usuario = await User.findOne({
+        where: {
+            id
+        }
+    })
+    if (usuario) {
+        res.render('userUpdate', {
+            titulo: 'Cadastro',
+            subtitulo: req.cookies.usuario ? `Verifique os dados e atualize os que precisar` : 'Preencha os dados e complete seu cadastro!',
+            usuarioLogado: req.cookies.usuario,
+            usuarioAdmin: req.cookies.admin,
+            usuarioEditando: usuario
+        })
+    } else {
+        res.status(500).send(`Ops... houve algum erro ao buscar pelo usuário de id ${id}`)
+    }
+}
+```
+
+E então atualizaremos nosso método `edit` :
+
+```js
+edit: async (req, res, next) => {
+    const id = req.params.id.replace('/', '')
+    let {
+        nome,
+        sobrenome,
+        apelido,
+        nascimento,
+        senha,
+        corPreferida,
+        email,
+        telefone,
+        bio
+    } = req.body
+    if (telefone) telefone = telefone.replace(/\D/g, '')
+    modificadoEm = new Date()
+    const user = await User.update({
+        nome,
+        sobrenome,
+        apelido,
+        nascimento,
+        senha,
+        corPreferida,
+        email,
+        telefone,
+        bio
+    }, {
+        where: {
+            id
+        }
+    })
+    if (user) {
+        res.redirect('../../usuarios')
+    } else {
+        res.status(500).send('Ops... Algo de errado não deu certo!')
+    }
+}
+```
+
+> Perceba que estamos desconsiderando o avatar (nessa lição não estamos considerando o upload de imagens).
+
+## 7.0 DESAFIO
+
+7.1. Atualize os controllers relacionados ao Login.
+
+7.2. Reproduza as mesmas operações (CRUD), mas com os produtos.
+
+___
+
+## Obrigado pela visita!
+
+Vamos nos conectar? Se quiser trocar idéias, experiências e figurinhas, entre em contato comigo!
+
+Marcelo Diament | Prorietário na [Djament Comunicação](http://djament.com.br/), Development Chapter Leader na [Driven.cx](https://www.driven.cx/) e Instrutor de Programação Full Stack na [Digital House](http://digitalhouse.com.br/) | [Github](https://github.com/Marcelo-Diament) | [LinkedIn](https://www.linkedin.com/in/marcelodiament/)

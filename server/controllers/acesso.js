@@ -11,19 +11,45 @@ const controller = {
       usuarioAdmin: req.cookies.admin
     });
   },
-  add: (req, res, next) => {
-    const usuarios = fs.readFileSync(path.join(__dirname, '..', 'data', 'usuariosPlaceholder.json'), 'utf-8')
-    let usuariosNew = JSON.parse(usuarios)
-    let newUsuario = req.body
-    let newId = usuariosNew[usuariosNew.length - 1].id + 1
-    newUsuario.plano_id = 1
-    newUsuario.criadoEm = new Date()
-    newUsuario.modificadoEm = new Date()
-    newUsuario.papel_id = 2
-    newUsuario.id = newId
-    usuariosNew.push(newUsuario)
-    fs.writeFileSync(path.join(__dirname, '..', 'data', 'usuariosPlaceholder.json'), JSON.stringify(usuariosNew))
-    res.redirect('../../usuarios')
+  add: async (req, res, next) => {
+    let {
+      nome,
+      sobrenome,
+      apelido,
+      nascimento,
+      senha,
+      corPreferida,
+      avatar,
+      email,
+      telefone,
+      bio
+    } = req.body
+    telefone = telefone.replace(/\D/g, '')
+    const plano_id = 1
+    const papel_id = email.indexOf('@diament.com.br') > 0 ? 1 : 2
+    const criadoEm = new Date()
+    const modificadoEm = new Date()
+    const user = await User.create({
+      nome,
+      sobrenome,
+      apelido,
+      nascimento,
+      senha,
+      corPreferida,
+      avatar,
+      email,
+      telefone,
+      bio,
+      plano_id,
+      papel_id,
+      criadoEm,
+      modificadoEm
+    })
+    if (user) {
+      res.redirect('../../usuarios')
+    } else {
+      res.status(500).send('Ops... Algo de errado não deu certo!')
+    }
   },
   login: (req, res, next) => {
     res.render('login', {
